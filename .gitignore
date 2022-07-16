@@ -1,3 +1,5 @@
 /.venv/
 /config/__pycache__
 .env
+/banco/__pycache__
+/banco/migrations/__pycache__
