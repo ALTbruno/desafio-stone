@@ -18,7 +18,7 @@ class Transacao(models.Model):
     ]
 
 	id = models.AutoField(primary_key=True)
-	data_hora = models.DateTimeField(null=True)
+	data_hora = models.DateTimeField(auto_now=True)
 	valor = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 	tipo = models.CharField(max_length=5, choices=TRANSACAO_CHOICES)
 	conta = models.ForeignKey(Conta, on_delete=models.CASCADE)
