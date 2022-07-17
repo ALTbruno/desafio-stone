@@ -104,10 +104,13 @@ def transferir(request):
 		Conta.save(conta_destino)
 		return JsonResponse({'mensagem': 'Transferência realizada com sucesso.'})
 
-@csrf_exempt
 def get_extrato(request, id_conta):
 	if request.method == 'GET':
 		query = Transacao.objects.filter(conta_id=id_conta)
+		De = request.GET.get('De', None)
+		Ate = request.GET.get('Ate', None)
+		if De and Ate:
+			query = query.filter(conta_id=id_conta, data_hora__range=[De, Ate])
 		serializer_class = TransacaoSerializer(query, many=True)
 		return JsonResponse(serializer_class.data, safe=False)
 
