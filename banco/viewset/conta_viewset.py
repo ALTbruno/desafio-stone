@@ -108,3 +108,9 @@ def get_extrato(request, id_conta):
 		query = Transacao.objects.filter(conta_id=id_conta)
 		serializer_class = TransacaoSerializer(query, many=True)
 		return JsonResponse(serializer_class.data, safe=False)
+
+def listar_contas(request):
+	if request.method == 'GET':
+		query = Conta.objects.all()
+		serializer_class = ContaSerializer(query, many=True)
+		return JsonResponse(serializer_class.data, safe=False)
