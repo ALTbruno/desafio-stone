@@ -40,6 +40,7 @@ def depositar(request, id_conta):
 		conta.saldo = saldo_atual
 		transacao = Transacao()
 		transacao.valor = valor_deposito
+		transacao.data_hora = datetime.datetime.now()
 		transacao.tipo = Transacao.DEPOSITO
 		transacao.conta = conta
 		transacao.save()
@@ -57,6 +58,7 @@ def sacar(request, id_conta):
 		conta.saldo = saldo_atual
 		transacao = Transacao()
 		transacao.valor = valor_saque
+		transacao.data_hora = datetime.datetime.now()
 		transacao.tipo = Transacao.SAQUE
 		transacao.conta = conta
 		transacao.save()
