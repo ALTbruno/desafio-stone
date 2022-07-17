@@ -44,3 +44,20 @@ def depositar(request, id_conta):
 		transacao.save()
 		Conta.save(conta)
 		return JsonResponse({'mensagem': 'Depósito realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+
+@csrf_exempt
+def sacar(request, id_conta):
+	if request.method == 'POST':
+		conta = Conta.objects.get(id=id_conta)
+		data = json.loads(request.body.decode('utf-8'))
+		valor_saque = data['valor_saque']
+		saldo = conta.saldo
+		saldo_atual = saldo - valor_saque
+		conta.saldo = saldo_atual
+		transacao = Transacao()
+		transacao.valor = valor_saque
+		transacao.tipo = Transacao.SAQUE
+		transacao.conta = conta
+		transacao.save()
+		Conta.save(conta)
+		return JsonResponse({'mensagem': 'Saque realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})

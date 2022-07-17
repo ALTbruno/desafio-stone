@@ -3,7 +3,7 @@ from django.urls import include, path
 from rest_framework import routers
 from banco.viewset import django_viewset
 from banco.viewset.cliente_viewset import cliente_viewset
-from banco.viewset.conta_viewset import ContaViewSet, get_saldo, depositar
+from banco.viewset.conta_viewset import ContaViewSet, get_saldo, depositar, sacar, transferir
 
 
 router = routers.DefaultRouter()
@@ -17,5 +17,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('contas/<int:id_conta>/saldo', get_saldo),
     path('contas/<int:id_conta>/depositar', depositar),
+    path('contas/<int:id_conta>/sacar', sacar),
     path('clientes/', cliente_viewset),
 ]
