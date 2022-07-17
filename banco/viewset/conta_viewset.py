@@ -4,6 +4,7 @@ from random import randrange
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
+from banco.model.transacao import Transacao
 
 from banco.serializer.conta_serializer import ContaSerializer
 from banco.model.conta import Conta
@@ -36,5 +37,10 @@ def depositar(request, id_conta):
 		saldo = conta.saldo
 		saldo_atual = saldo + valor_deposito
 		conta.saldo = saldo_atual
+		transacao = Transacao()
+		transacao.valor = valor_deposito
+		transacao.tipo = Transacao.DEPOSITO
+		transacao.conta = conta
+		transacao.save()
 		Conta.save(conta)
 		return JsonResponse({'mensagem': 'Depósito realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
