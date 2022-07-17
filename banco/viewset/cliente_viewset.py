@@ -37,6 +37,5 @@ def cliente_viewset(request):
 def buscar_cliente_por_id(request, id_cliente):
 	if request.method == 'GET':
 		query = Cliente.objects.get(pk=id_cliente)
-		print(type(query))
 		serializer_class = ClienteSerializer(query, many=False)
 		return JsonResponse(serializer_class.data, safe=False)

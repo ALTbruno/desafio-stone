@@ -114,3 +114,9 @@ def listar_contas(request):
 		query = Conta.objects.all()
 		serializer_class = ContaSerializer(query, many=True)
 		return JsonResponse(serializer_class.data, safe=False)
+
+def buscar_conta_por_id(request, id_conta):
+	if request.method == 'GET':
+		query = Conta.objects.get(pk=id_conta)
+		serializer_class = ContaSerializer(query, many=False)
+		return JsonResponse(serializer_class.data, safe=False)
