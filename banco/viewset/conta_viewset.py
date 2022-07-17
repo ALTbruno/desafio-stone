@@ -1,5 +1,5 @@
+import datetime
 import json
-from pyexpat.errors import messages
 from random import randrange
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -61,3 +61,42 @@ def sacar(request, id_conta):
 		transacao.save()
 		Conta.save(conta)
 		return JsonResponse({'mensagem': 'Saque realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+
+@csrf_exempt
+def transferir(request):
+	if request.method == 'POST':
+		data = json.loads(request.body.decode('utf-8'))
+		numero_conta_saida = data['conta_saida']
+		numero_conta_destino = data['conta_destino']
+		valor_transferencia = data['valor_transferencia']
+
+		conta_saida = Conta.objects.get(numero=numero_conta_saida)
+		conta_saida_saldo = conta_saida.saldo
+		conta_destino = Conta.objects.get(numero=numero_conta_destino)
+		conta_destino_saldo = conta_destino.saldo
+		
+		conta_saida_saldo_atual = conta_saida_saldo - valor_transferencia
+		conta_destino_saldo_atual = conta_destino_saldo + valor_transferencia
+
+		conta_saida.saldo = conta_saida_saldo_atual
+		conta_destino.saldo = conta_destino_saldo_atual
+
+		data_hora_atual = datetime.datetime.now()
+
+		transacao_saida = Transacao()
+		transacao_saida.valor = valor_transferencia
+		transacao_saida.data_hora = data_hora_atual
+		transacao_saida.tipo = Transacao.TRANSFERENCIA_ENVIADA
+		transacao_saida.conta = conta_saida
+		transacao_saida.save()
+
+		transacao_entrada = Transacao()
+		transacao_entrada.valor = valor_transferencia
+		transacao_entrada.data_hora = data_hora_atual
+		transacao_entrada.tipo = Transacao.TRANSFERENCIA_RECEBIDA
+		transacao_entrada.conta = conta_destino
+		transacao_entrada.save()
+
+		Conta.save(conta_saida)
+		Conta.save(conta_destino)
+		return JsonResponse({'mensagem': 'Transferência realizada com sucesso.'})

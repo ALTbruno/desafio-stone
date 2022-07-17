@@ -18,5 +18,6 @@ urlpatterns = [
     path('contas/<int:id_conta>/saldo', get_saldo),
     path('contas/<int:id_conta>/depositar', depositar),
     path('contas/<int:id_conta>/sacar', sacar),
+    path('contas/transferir', transferir),
     path('clientes/', cliente_viewset),
 ]
