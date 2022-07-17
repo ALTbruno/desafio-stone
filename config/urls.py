@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 from banco.viewset import django_viewset
-from banco.viewset.cliente_viewset import cliente_viewset
+from banco.viewset.cliente_viewset import cliente_viewset, buscar_cliente_por_id
 from banco.viewset.conta_viewset import get_saldo, depositar, sacar, transferir, get_extrato
 
 
@@ -20,4 +20,5 @@ urlpatterns = [
     path('contas/<int:id_conta>/transacoes', get_extrato),
     path('contas/transferir', transferir),
     path('clientes/', cliente_viewset),
+    path('clientes/<int:id_cliente>', buscar_cliente_por_id),
 ]

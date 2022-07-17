@@ -1,5 +1,6 @@
 import json
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions
 from django.views.decorators.csrf import csrf_exempt
 
@@ -33,4 +34,9 @@ def cliente_viewset(request):
 		serializer_class = ClienteSerializer(query, many=True)
 		return JsonResponse(serializer_class.data, safe=False)
 
-
+def buscar_cliente_por_id(request, id_cliente):
+	if request.method == 'GET':
+		query = Cliente.objects.get(pk=id_cliente)
+		print(type(query))
+		serializer_class = ClienteSerializer(query, many=False)
+		return JsonResponse(serializer_class.data, safe=False)
