@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from banco.models import Cliente, Conta
+from banco.model.cliente import Cliente
+from banco.model.conta import Conta
 
 class ClienteAdmin(admin.ModelAdmin):
 	list_display = ('id', 'nome', 'sobrenome', 'data_nascimento', 'cpf', 'email')

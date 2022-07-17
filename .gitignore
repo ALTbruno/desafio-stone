@@ -3,3 +3,6 @@
 .env
 /banco/__pycache__
 /banco/migrations/__pycache__
+/banco/model/__pycache__
+/banco/serializer/__pycache__
+/banco/viewset/__pycache__
