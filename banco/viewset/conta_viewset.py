@@ -8,10 +8,11 @@ from banco.model.transacao import Transacao
 
 from banco.serializer.conta_serializer import ContaSerializer
 from banco.model.conta import Conta
+from banco.serializer.transacao_serializer import TransacaoSerializer
 
-class ContaViewSet(viewsets.ReadOnlyModelViewSet):
-	serializer_class = ContaSerializer
-	queryset = Conta.objects.all()
+# class ContaViewSet(viewsets.ReadOnlyModelViewSet):
+# 	serializer_class = ContaSerializer
+# 	queryset = Conta.objects.all()
 
 def gerar_numero():
 	return randrange(1000000000,9000000000)
@@ -100,3 +101,10 @@ def transferir(request):
 		Conta.save(conta_saida)
 		Conta.save(conta_destino)
 		return JsonResponse({'mensagem': 'Transferência realizada com sucesso.'})
+
+@csrf_exempt
+def get_extrato(request, id_conta):
+	if request.method == 'GET':
+		query = Transacao.objects.filter(conta_id=id_conta)
+		serializer_class = TransacaoSerializer(query, many=True)
+		return JsonResponse(serializer_class.data, safe=False)
