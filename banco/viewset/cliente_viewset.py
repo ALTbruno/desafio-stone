@@ -1,9 +1,7 @@
 import json
+from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 
 from banco.serializer.cliente_serializer import ClienteSerializer
@@ -16,7 +14,8 @@ from banco.viewset.conta_viewset import abrir_conta
 # 	# permission_classes = [permissions.IsAuthenticated]
 
 @csrf_exempt
-def cliente_viewset(request, *args, **kwargs):
+@transaction.atomic
+def cliente_viewset(request):
 	if request.method == 'POST':
 		body = json.loads(request.body.decode('utf-8'))
 		serializer = ClienteSerializer(data=body)
