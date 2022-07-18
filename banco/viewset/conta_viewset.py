@@ -19,7 +19,8 @@ def gerar_numero():
 
 def abrir_conta(cliente):
 	numero_conta = gerar_numero()
-	# if not Conta.objects.get(numero=numero_conta):
+	while(Conta.objects.filter(numero=numero_conta).exists()):
+		numero_conta = gerar_numero()
 	conta = Conta(agencia='0001', numero=numero_conta, cliente=cliente)
 	conta.save()
 
