@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date
+import datetime
 from rest_framework import serializers
 
 from banco.model.cliente import Cliente
@@ -27,8 +27,8 @@ class ClienteSerializer(serializers.ModelSerializer):
 		return email
 
 	def validate_data_nascimento(self, data_nascimento):
-		if data_nascimento.date() >= datetime.today.date():
+		if data_nascimento.__gt__(datetime.datetime.today()):
 			raise serializers.ValidationError(
-				{'data_nascimento': 'A data de nascimento deve ser antes do dia atual'}
+				{'data_nascimento': 'A data de nascimento não pode ser no futuro'}
 			)
 		return data_nascimento
