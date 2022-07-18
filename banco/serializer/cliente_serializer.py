@@ -10,7 +10,15 @@ class ClienteSerializer(serializers.ModelSerializer):
 	
 	class Meta():
 		model = Cliente
-		fields = "__all__"
+		fields = [
+			'id',
+			'nome',
+			'sobrenome',
+			'data_nascimento',
+			'cpf',
+			'email',
+			'senha'
+		]
 
 	def validate_cpf(self, cpf):
 		if not re.match(r'^([\s\d]+)$', cpf):
@@ -47,16 +55,4 @@ class ClienteSerializer(serializers.ModelSerializer):
 		if len(senha) < 8:
 			raise serializers.ValidationError(
 				 'A senha deve ter no mínimo 8 caracteres'
-			)
-
-	def validate_nome(self, nome):
-		if len(nome) < 3:
-			raise serializers.ValidationError(
-				 'Sobrenome deve ter no mínimo 3 caracteres'
-			)
-
-	def validate_sobrenome(self, sobrenome):
-		if len(sobrenome) < 3:
-			raise serializers.ValidationError(
-				 'Sobrenome deve ter no mínimo 3 caracteres'
 			)
