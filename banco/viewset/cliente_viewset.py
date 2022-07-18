@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions
@@ -15,13 +16,16 @@ from banco.viewset.conta_viewset import abrir_conta
 # 	# permission_classes = [permissions.IsAuthenticated]
 
 @csrf_exempt
-def cliente_viewset(request):
+def cliente_viewset(request, *args, **kwargs):
 	if request.method == 'POST':
-		body = JSONParser().parse(request)
+		body = json.loads(request.body.decode('utf-8'))
 		serializer = ClienteSerializer(data=body)
 		if serializer.is_valid():
 			serializer.save()
-			return JsonResponse(serializer.data, status=201)
+			id = serializer.data.get('id')
+			cliente = Cliente.objects.get(pk=id)
+			abrir_conta(cliente)
+			return JsonResponse(serializer.data)
 		return JsonResponse(serializer.errors, status=400)
 
 	if request.method == 'GET':
