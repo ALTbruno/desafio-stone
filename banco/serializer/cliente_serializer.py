@@ -27,7 +27,13 @@ class ClienteSerializer(serializers.ModelSerializer):
 		return email
 
 	def validate_data_nascimento(self, data_nascimento):
-		if data_nascimento.__gt__(datetime.datetime.today()):
+		hoje = datetime.datetime.today()
+		idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+		if idade < 18:
+			raise serializers.ValidationError(
+				{'data_nascimento': 'Apenas pessoas com 18 ou mais anos podem abrir conta'}
+			)
+		if data_nascimento.__gt__(hoje):
 			raise serializers.ValidationError(
 				{'data_nascimento': 'A data de nascimento não pode ser no futuro'}
 			)
