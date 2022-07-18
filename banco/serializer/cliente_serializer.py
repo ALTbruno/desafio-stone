@@ -15,14 +15,18 @@ class ClienteSerializer(serializers.ModelSerializer):
 	def validate_cpf(self, cpf):
 		if not re.match(r'^([\s\d]+)$', cpf):
 			raise serializers.ValidationError(
-				{'CPF': 'CPF deve ser numérico'}
+			'O campo CPF deve ser numérico'
+			)
+		if len(cpf) < 11 or len(cpf) > 11:
+			raise serializers.ValidationError(
+			'O campo CPF deve ter 11 caracteres'
 			)
 		return cpf
 
 	def validate_email(self, email):
 		if not re.match(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', email):
 			raise serializers.ValidationError(
-				{'email': 'E-mail inválido'}
+				'E-mail inválido'
 			)
 		return email
 
@@ -31,10 +35,28 @@ class ClienteSerializer(serializers.ModelSerializer):
 		idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
 		if idade < 18:
 			raise serializers.ValidationError(
-				{'data_nascimento': 'Apenas pessoas com 18 ou mais anos podem abrir conta'}
+				'Apenas pessoas com 18 ou mais anos podem abrir conta'
 			)
 		if data_nascimento.__gt__(hoje):
 			raise serializers.ValidationError(
-				{'data_nascimento': 'A data de nascimento não pode ser no futuro'}
+				'A data de nascimento não pode ser no futuro'
 			)
 		return data_nascimento
+	
+	def validate_senha(self, senha):
+		if len(senha) < 8:
+			raise serializers.ValidationError(
+				 'A senha deve ter no mínimo 8 caracteres'
+			)
+
+	def validate_nome(self, nome):
+		if len(nome) < 3:
+			raise serializers.ValidationError(
+				 'Sobrenome deve ter no mínimo 3 caracteres'
+			)
+
+	def validate_sobrenome(self, sobrenome):
+		if len(sobrenome) < 3:
+			raise serializers.ValidationError(
+				 'Sobrenome deve ter no mínimo 3 caracteres'
+			)
