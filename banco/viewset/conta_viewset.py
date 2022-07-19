@@ -1,6 +1,7 @@
 import datetime
 import json
 from random import randrange
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
@@ -26,47 +27,57 @@ def abrir_conta(cliente):
 
 def get_saldo(request, id_conta):
 	if request.method == 'GET':
-		conta = Conta.objects.get(id=id_conta)
-		saldo = conta.saldo
-		return JsonResponse({'saldo': saldo})
+		try:
+			conta = Conta.objects.get(pk=id_conta)
+			saldo = conta.saldo
+			return JsonResponse({'saldo': saldo}, safe=False)
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "ID {} não encontrado.".format(id_conta)}, status=400, safe=False)
 
 @csrf_exempt
 def depositar(request, id_conta):
 	if request.method == 'POST':
-		conta = Conta.objects.get(id=id_conta)
-		data = json.loads(request.body.decode('utf-8'))
-		valor_deposito = data['valor_deposito']
-		saldo = conta.saldo
-		saldo_atual = saldo + valor_deposito
-		conta.saldo = saldo_atual
-		transacao = Transacao()
-		transacao.valor = valor_deposito
-		transacao.data_hora = datetime.datetime.now()
-		transacao.tipo = Transacao.DEPOSITO
-		transacao.conta = conta
-		transacao.save()
-		Conta.save(conta)
-		return JsonResponse({'mensagem': 'Depósito realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+		try:
+			conta = Conta.objects.get(id=id_conta)
+			data = json.loads(request.body.decode('utf-8'))
+			valor_deposito = data['valor_deposito']
+			saldo = conta.saldo
+			saldo_atual = saldo + valor_deposito
+			conta.saldo = saldo_atual
+			transacao = Transacao()
+			transacao.valor = valor_deposito
+			transacao.data_hora = datetime.datetime.now()
+			transacao.tipo = Transacao.DEPOSITO
+			transacao.conta = conta
+			transacao.save()
+			Conta.save(conta)
+			return JsonResponse({'mensagem': 'Depósito realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "ID {} não encontrado.".format(id_conta)}, status=400, safe=False)
 
 @csrf_exempt
 def sacar(request, id_conta):
 	if request.method == 'POST':
-		conta = Conta.objects.get(id=id_conta)
-		data = json.loads(request.body.decode('utf-8'))
-		valor_saque = data['valor_saque']
-		saldo = conta.saldo
-		saldo_atual = saldo - valor_saque
-		conta.saldo = saldo_atual
-		transacao = Transacao()
-		transacao.valor = valor_saque
-		transacao.data_hora = datetime.datetime.now()
-		transacao.tipo = Transacao.SAQUE
-		transacao.conta = conta
-		transacao.save()
-		Conta.save(conta)
-		return JsonResponse({'mensagem': 'Saque realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+		try:
+			conta = Conta.objects.get(id=id_conta)
+			data = json.loads(request.body.decode('utf-8'))
+			valor_saque = data['valor_saque']
+			saldo = conta.saldo
+			saldo_atual = saldo - valor_saque
+			conta.saldo = saldo_atual
+			transacao = Transacao()
+			transacao.valor = valor_saque
+			transacao.data_hora = datetime.datetime.now()
+			transacao.tipo = Transacao.SAQUE
+			transacao.conta = conta
+			transacao.save()
+			Conta.save(conta)
+			return JsonResponse({'mensagem': 'Saque realizado com sucesso.', 'saldo_anterior': saldo, 'saldo_atual': saldo_atual})
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "ID {} não encontrado.".format(id_conta)}, status=400, safe=False)
 
 @csrf_exempt
+@transaction.atomic
 def transferir(request):
 	if request.method == 'POST':
 		data = json.loads(request.body.decode('utf-8'))
@@ -74,9 +85,23 @@ def transferir(request):
 		numero_conta_destino = data['conta_destino']
 		valor_transferencia = data['valor_transferencia']
 
-		conta_saida = Conta.objects.get(numero=numero_conta_saida)
+		if numero_conta_saida == numero_conta_destino:
+			return JsonResponse({"mensagem": "A conta de destino deve ser diferente da conta de saida"}, status=400, safe=False)
+
+		try:
+			conta_saida = Conta.objects.get(numero=numero_conta_saida)
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "Conta {} não encontrada.".format(numero_conta_saida)}, status=400, safe=False)
+		try:
+			conta_destino = Conta.objects.get(numero=numero_conta_destino)
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "Conta {} não encontrada.".format(numero_conta_destino)}, status=400, safe=False)
+		
 		conta_saida_saldo = conta_saida.saldo
-		conta_destino = Conta.objects.get(numero=numero_conta_destino)
+
+		if valor_transferencia > conta_saida_saldo:
+			return JsonResponse({"mensagem": "Saldo insuficiente"}, status=400, safe=False)
+
 		conta_destino_saldo = conta_destino.saldo
 		
 		conta_saida_saldo_atual = conta_saida_saldo - valor_transferencia
@@ -123,6 +148,10 @@ def listar_contas(request):
 
 def buscar_conta_por_id(request, id_conta):
 	if request.method == 'GET':
-		query = Conta.objects.get(pk=id_conta)
-		serializer_class = ContaSerializer(query, many=False)
-		return JsonResponse(serializer_class.data, safe=False)
+		try:
+			query = Conta.objects.get(pk=id_conta)
+			serializer_class = ContaSerializer(query, many=False)
+			return JsonResponse(serializer_class.data, safe=False)
+		except Conta.DoesNotExist:
+			return JsonResponse({"mensagem": "ID {} não encontrado.".format(id_conta)}, status=400, safe=False)
+
