@@ -3,7 +3,7 @@ import json
 from decimal import Decimal
 from random import randrange
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
 from banco.model.transacao import Transacao
@@ -41,7 +41,10 @@ def depositar(request, id_conta):
 		try:
 			conta = Conta.objects.get(id=id_conta)
 			data = json.loads(request.body.decode('utf-8'))
-			valor_deposito = Decimal(data['valor_deposito'])
+			valor_deposito = data['valor_deposito']
+			if type(valor_deposito) is not str:
+				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+			valor_deposito = Decimal(valor_deposito)
 			saldo = conta.saldo
 			saldo_atual = saldo + valor_deposito
 			conta.saldo = saldo_atual
@@ -62,7 +65,11 @@ def sacar(request, id_conta):
 		try:
 			conta = Conta.objects.get(id=id_conta)
 			data = json.loads(request.body.decode('utf-8'))
-			valor_saque = Decimal(data['valor_saque'])
+			valor_saque = data['valor_saque']
+			if type(valor_saque) is not str:
+				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+			valor_saque = Decimal(valor_saque)
+			
 			saldo = conta.saldo
 			saldo_atual = saldo - valor_saque
 			conta.saldo = saldo_atual
@@ -84,7 +91,10 @@ def transferir(request):
 		data = json.loads(request.body.decode('utf-8'))
 		numero_conta_saida = data['conta_saida']
 		numero_conta_destino = data['conta_destino']
-		valor_transferencia = Decimal(data['valor_transferencia'])
+		valor_transferencia = data['valor_transferencia']
+		if type(valor_transferencia) is not str:
+				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+		valor_transferencia = Decimal(valor_transferencia)
 
 		if numero_conta_saida == numero_conta_destino:
 			return JsonResponse({"mensagem": "A conta de destino deve ser diferente da conta de saida"}, status=400, safe=False)
