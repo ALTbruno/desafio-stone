@@ -1,5 +1,6 @@
 import datetime
 import json
+from decimal import Decimal
 from random import randrange
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -40,7 +41,7 @@ def depositar(request, id_conta):
 		try:
 			conta = Conta.objects.get(id=id_conta)
 			data = json.loads(request.body.decode('utf-8'))
-			valor_deposito = data['valor_deposito']
+			valor_deposito = Decimal(data['valor_deposito'])
 			saldo = conta.saldo
 			saldo_atual = saldo + valor_deposito
 			conta.saldo = saldo_atual
@@ -61,7 +62,7 @@ def sacar(request, id_conta):
 		try:
 			conta = Conta.objects.get(id=id_conta)
 			data = json.loads(request.body.decode('utf-8'))
-			valor_saque = data['valor_saque']
+			valor_saque = Decimal(data['valor_saque'])
 			saldo = conta.saldo
 			saldo_atual = saldo - valor_saque
 			conta.saldo = saldo_atual
@@ -83,7 +84,7 @@ def transferir(request):
 		data = json.loads(request.body.decode('utf-8'))
 		numero_conta_saida = data['conta_saida']
 		numero_conta_destino = data['conta_destino']
-		valor_transferencia = data['valor_transferencia']
+		valor_transferencia = Decimal(data['valor_transferencia'])
 
 		if numero_conta_saida == numero_conta_destino:
 			return JsonResponse({"mensagem": "A conta de destino deve ser diferente da conta de saida"}, status=400, safe=False)
@@ -103,7 +104,6 @@ def transferir(request):
 			return JsonResponse({"mensagem": "Saldo insuficiente"}, status=400, safe=False)
 
 		conta_destino_saldo = conta_destino.saldo
-		
 		conta_saida_saldo_atual = conta_saida_saldo - valor_transferencia
 		conta_destino_saldo_atual = conta_destino_saldo + valor_transferencia
 
