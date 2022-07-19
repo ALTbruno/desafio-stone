@@ -132,7 +132,7 @@ def transferir(request):
 
 def get_extrato(request, id_conta):
 	if request.method == 'GET':
-		query = Transacao.objects.filter(conta_id=id_conta)
+		query = Transacao.objects.filter(conta_id=id_conta).order_by('-data_hora')
 		De = request.GET.get('De', None)
 		Ate = request.GET.get('Ate', None)
 		if De and Ate:
