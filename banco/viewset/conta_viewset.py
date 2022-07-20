@@ -1,3 +1,4 @@
+import re
 import datetime
 import json
 from decimal import Decimal
@@ -44,6 +45,8 @@ def depositar(request, id_conta):
 			valor_deposito = data['valor_deposito']
 			if type(valor_deposito) is not str:
 				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+			if not re.match(r'^\d+(\.\d{1,2})?$', valor_deposito):
+				return JsonResponse({"mensagem": "Valor inválido. Padrões aceitos: 10 ou 10.5 ou 10.50"}, status=400, safe=False)
 			valor_deposito = Decimal(valor_deposito)
 			saldo = conta.saldo
 			saldo_atual = saldo + valor_deposito
@@ -68,6 +71,8 @@ def sacar(request, id_conta):
 			valor_saque = data['valor_saque']
 			if type(valor_saque) is not str:
 				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+			if not re.match(r'^\d+(\.\d{1,2})?$', valor_saque):
+				return JsonResponse({"mensagem": "Valor inválido. Padrões aceitos: 10 ou 10.5 ou 10.50"}, status=400, safe=False)
 			valor_saque = Decimal(valor_saque)
 			
 			saldo = conta.saldo
@@ -94,6 +99,8 @@ def transferir(request):
 		valor_transferencia = data['valor_transferencia']
 		if type(valor_transferencia) is not str:
 				return JsonResponse({"mensagem": "O valor deve ser enviado como string."}, status=400, safe=False)
+		if not re.match(r'^\d+(\.\d{1,2})?$', valor_transferencia):
+				return JsonResponse({"mensagem": "Valor inválido. Padrões aceitos: 10 ou 10.5 ou 10.50"}, status=400, safe=False)
 		valor_transferencia = Decimal(valor_transferencia)
 
 		if numero_conta_saida == numero_conta_destino:
