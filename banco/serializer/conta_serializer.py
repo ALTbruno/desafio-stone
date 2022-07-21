@@ -4,6 +4,6 @@ from banco.model.conta import Conta
 
 class ContaSerializer(serializers.ModelSerializer):
 
-	class Meta():
+	class Meta:
 		model = Conta
 		fields = '__all__'

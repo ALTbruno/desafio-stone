@@ -4,6 +4,6 @@ from banco.model.transacao import Transacao
 
 class TransacaoSerializer(serializers.ModelSerializer):
 	
-	class Meta():
+	class Meta:
 		model = Transacao
 		fields = "__all__"

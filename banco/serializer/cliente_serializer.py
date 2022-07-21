@@ -8,7 +8,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 	cpf = serializers.CharField(min_length=11)
 	
-	class Meta():
+	class Meta:
 		model = Cliente
 		fields = [
 			'id',
